@@ -13,6 +13,10 @@ export interface MoodState {
   liveAvgBps: number
   liveBps: number[]
   tickers: string[]
+  /** Live Chainlink prices in USD. */
+  prices: number[]
+  totalMinted: number
+  blockNumber: bigint
   /** Chain time minus device time (seconds). */
   clockOffset: number
 }
@@ -22,11 +26,13 @@ const POLL_MS = 20_000
 async function load(): Promise<MoodState> {
   if (!DEPLOYMENT) throw new Error('Not deployed')
   const address = DEPLOYMENT.moodRing
-  const [day, count, tickers, [liveBps, liveAvg], block] = await Promise.all([
+  const [day, count, tickers, [liveBps, liveAvg], prices, minted, block] = await Promise.all([
     publicClient.readContract({ address, abi: moodRingAbi, functionName: 'currentDay' }),
     publicClient.readContract({ address, abi: moodRingAbi, functionName: 'snapshotCount' }),
     publicClient.readContract({ address, abi: moodRingAbi, functionName: 'tickers' }),
     publicClient.readContract({ address, abi: moodRingAbi, functionName: 'liveMoves' }),
+    publicClient.readContract({ address, abi: moodRingAbi, functionName: 'livePrices' }),
+    publicClient.readContract({ address, abi: moodRingAbi, functionName: 'totalMinted' }),
     publicClient.getBlock(),
   ])
   const todayNumber = Number(
@@ -43,6 +49,9 @@ async function load(): Promise<MoodState> {
     liveAvgBps: Number(liveAvg),
     liveBps: liveBps.map(Number),
     tickers: [...tickers],
+    prices: prices.map((p) => Number(p) / 1e8),
+    totalMinted: Number(minted),
+    blockNumber: block.number,
     clockOffset: Number(block.timestamp) - Date.now() / 1000,
   }
 }

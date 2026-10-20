@@ -8,24 +8,24 @@ const SAMPLES = [
 /** Shown before the contract is deployed. */
 export function PreLaunch() {
   return (
-    <header className="container hero" id="top">
-      <div>
-        <p className="status">
-          <span className="dot" /> Launching on Robinhood Chain
+    <header className="hero" id="top">
+      <div className="hero-copy">
+        <p className="kicker live intro">
+          <span className="pulse" /> Launching on Robinhood Chain
         </p>
-        <h1>
-          The stock market, <span>painted once a day.</span>
+        <h1 className="intro">
+          The stock market, <em>painted</em> once a day.
         </h1>
-        <p className="lede">
-          Every day, real prices of eight stocks become one artwork, stored fully on-chain. Green days get a bull, red
-          days get a bear. Minting is free.
+        <p className="lede intro">
+          Every day the real prices of eight stocks become one artwork, stored fully on-chain. Green days get a bull,
+          red days get a bear. Minting is free.
         </p>
       </div>
       <div className="samples">
         {SAMPLES.map((s) => (
-          <figure key={s.src}>
+          <figure key={s.src} className="panel">
             <img src={s.src} alt={`Example artwork: ${s.label}`} width={800} height={800} />
-            <figcaption>{s.label}</figcaption>
+            <figcaption className="kicker">{s.label}</figcaption>
           </figure>
         ))}
       </div>

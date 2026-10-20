@@ -13,19 +13,30 @@ interface Props {
 export function Archive({ pieces, total, loading, busy, onMint, onMore }: Props) {
   return (
     <section className="section" id="archive" aria-labelledby="archive-h">
-      <div className="container">
-        <p className="eyebrow">Archive</p>
-        <h2 id="archive-h">Every day so far</h2>
-        <p className="section-lede">Each snapshot stays mintable forever.</p>
+      <div className="wrap">
+        <div className="section-head" data-reveal>
+          <span className="kicker">03 · Archive</span>
+          <h2 id="archive-h">
+            Every day, <em>kept</em> forever.
+          </h2>
+          <p>Each snapshot stays mintable for good. Newest first.</p>
+        </div>
         {total === 0 ? (
-          <p className="empty">The first snapshot hasn’t been taken yet. Snap today to own #1, the Genesis piece.</p>
+          <p className="empty panel" data-reveal>
+            The first snapshot hasn’t been taken yet. Snap today to own #1, the Genesis piece.
+          </p>
         ) : (
           <>
             <div className="grid">
-              {pieces.map((p) => {
+              {pieces.map((p, i) => {
                 const mood = moodOf(p.avgBps, p.number === 1)
                 return (
-                  <article key={p.number} className="piece">
+                  <article
+                    key={p.number}
+                    className="piece panel"
+                    data-reveal
+                    style={{ '--delay': `${(i % 4) * 80}ms`, '--mood': mood.bg } as React.CSSProperties}
+                  >
                     <img
                       src={svgDataUrl(p.svg)}
                       alt={`Mood Ring #${p.number}, ${dayLabel(p.day)}`}
@@ -36,15 +47,17 @@ export function Archive({ pieces, total, loading, busy, onMint, onMore }: Props)
                     <div className="piece-meta">
                       <div className="piece-row">
                         <b>#{p.number}</b>
-                        <span>{dayLabel(p.day).toLowerCase()}</span>
+                        <span className="kicker">{dayLabel(p.day)}</span>
                       </div>
-                      <div className="piece-sub">
-                        {mood.name.toLowerCase()} {p.number === 1 ? '' : percent(p.avgBps)}
+                      <div className="piece-row">
+                        <span className="mood-chip">
+                          <i /> {mood.name.toLowerCase()} {p.number === 1 ? '' : percent(p.avgBps)}
+                        </span>
                       </div>
                       <div className="piece-foot">
-                        <span className="piece-sub">{p.minted} minted</span>
-                        <button className="pill pill-ghost" disabled={Boolean(busy)} onClick={() => onMint(p.number)}>
-                          Mint
+                        <span className="kicker">{p.minted} minted</span>
+                        <button className="pill pill-ghost pill-sm" disabled={Boolean(busy)} onClick={() => onMint(p.number)}>
+                          Mint <span aria-hidden="true">→</span>
                         </button>
                       </div>
                     </div>

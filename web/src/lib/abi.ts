@@ -13,6 +13,7 @@ export const moodRingAbi = parseAbi([
   'function moves(uint256 number) view returns (int256[8] bps, int256 avgBps)',
   'function liveMoves() view returns (int256[8] bps, int256 avgBps)',
   'function tickers() view returns (string[8])',
+  'function livePrices() view returns (int64[8])',
   'function svg(uint256 number) view returns (string)',
   'function previewSvg() view returns (string)',
   'event Minted(uint256 indexed tokenId, uint256 indexed number, address indexed to)',

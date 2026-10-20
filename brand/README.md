@@ -43,7 +43,7 @@ Inter (free, Google Fonts). Bold/Extra Bold for headlines with slightly tight le
 
 - Name: Mood Ring
 - Tagline: The stock market, painted once a day.
-- X bio: The stock market, painted once a day. Free daily on-chain art from 8 real stock prices on Robinhood Chain. No token.
+- X bio: The stock market, painted once a day. Free daily on-chain art from 8 real stock prices on Robinhood Chain.
 
 ## Rebuild
 
