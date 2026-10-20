@@ -14,6 +14,7 @@ export function Nav({ wallet, showWallet }: { wallet: WalletState; showWallet: b
         </a>
         <div className="nav-links">
           <a href="#today">Today</a>
+          <a href="#agent">Agent</a>
           <a href="#how">How it works</a>
           <a href="#archive">Archive</a>
           <a href="#proof">Proof</a>

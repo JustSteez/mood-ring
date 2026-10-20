@@ -16,6 +16,21 @@ export const PAGE_SIZE = 12
 // Snapshot art never changes once recorded, so cache it for the session.
 const svgCache = new Map<number, string>()
 
+/** A snapshot's artwork, cached for the session. */
+export async function svgOf(number: number): Promise<string> {
+  if (!DEPLOYMENT) throw new Error('Not deployed')
+  const cached = svgCache.get(number)
+  if (cached) return cached
+  const svg = await publicClient.readContract({
+    address: DEPLOYMENT.moodRing,
+    abi: moodRingAbi,
+    functionName: 'svg',
+    args: [BigInt(number)],
+  })
+  svgCache.set(number, svg)
+  return svg
+}
+
 async function loadPiece(number: number): Promise<Piece> {
   if (!DEPLOYMENT) throw new Error('Not deployed')
   const address = DEPLOYMENT.moodRing

@@ -47,7 +47,7 @@ export function Proof({ snapshots, minted }: { snapshots: number; minted: number
       <section className="section" id="proof" aria-labelledby="proof-h">
         <div className="wrap">
           <div className="section-head" data-reveal>
-            <span className="kicker">04 · Proof, not promises</span>
+            <span className="kicker">05 · Proof, not promises</span>
             <h2 id="proof-h">
               Don’t trust us. <em>Verify</em> it.
             </h2>

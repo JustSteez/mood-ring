@@ -14,6 +14,7 @@ export function Footer() {
         <div className="foot-links">
           <span className="kicker">Explore</span>
           <a href="#today">Today</a>
+          <a href="#agent">Your agent</a>
           <a href="#how">How it works</a>
           <a href="#archive">Archive</a>
         </div>

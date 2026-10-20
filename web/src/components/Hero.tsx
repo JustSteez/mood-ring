@@ -11,7 +11,7 @@ interface Props {
   onMint: (number: number) => void
 }
 
-const TRUST = ['Art stored on-chain', 'No owner', 'Free mint', 'Chainlink prices']
+const TRUST = ['Art stored on-chain', 'Free mint', 'Personal agent', 'Chainlink prices']
 
 export function Hero({ state, now, busy, onSnapMint, onMint }: Props) {
   const snapped = state.todayNumber > 0

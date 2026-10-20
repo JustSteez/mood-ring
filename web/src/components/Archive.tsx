@@ -15,7 +15,7 @@ export function Archive({ pieces, total, loading, busy, onMint, onMore }: Props)
     <section className="section" id="archive" aria-labelledby="archive-h">
       <div className="wrap">
         <div className="section-head" data-reveal>
-          <span className="kicker">03 · Archive</span>
+          <span className="kicker">04 · Archive</span>
           <h2 id="archive-h">
             Every day, <em>kept</em> forever.
           </h2>

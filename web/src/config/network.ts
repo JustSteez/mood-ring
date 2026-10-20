@@ -6,6 +6,8 @@ export interface Deployment {
   chainId: number
   moodRing: Address
   renderer: Address
+  /** Agent-name registry; absent until it is deployed. */
+  agents?: Address
 }
 
 export type NetworkName = 'mainnet' | 'local'

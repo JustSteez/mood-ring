@@ -1,4 +1,5 @@
 import { useCallback, useState } from 'react'
+import { Agent } from './components/Agent'
 import { Archive } from './components/Archive'
 import { Footer } from './components/Footer'
 import { Hero } from './components/Hero'
@@ -11,13 +12,14 @@ import { Scene } from './components/Scene'
 import { Toasts } from './components/Toasts'
 import { openWalletMenu } from './components/WalletMenu'
 import { DEPLOYMENT, IS_PRELAUNCH } from './config/network'
+import { useAgent } from './hooks/useAgent'
 import { useArchive } from './hooks/useArchive'
 import { useMood } from './hooks/useMood'
 import { useNow } from './hooks/useNow'
 import { useReveal } from './hooks/useReveal'
 import { useTx } from './hooks/useTx'
 import { useWallet } from './hooks/useWallet'
-import { moodRingAbi } from './lib/abi'
+import { moodAgentsAbi, moodRingAbi } from './lib/abi'
 import { moodOf } from './lib/mood'
 
 const noTicker = () => ''
@@ -31,7 +33,8 @@ export default function App() {
   const wallNow = useNow()
   const now = wallNow + (state && Math.abs(state.clockOffset) > 2 ? state.clockOffset : 0)
   const tx = useTx(wallet.account, noTicker)
-  useReveal(`${Boolean(state)}-${archive.pieces.length}`)
+  const agent = useAgent(wallet.account, state, archiveKey)
+  useReveal(`${Boolean(state)}-${archive.pieces.length}-${agent.pieces?.length ?? -1}-${Boolean(wallet.account)}`)
 
   const send = useCallback(
     async (functionName: 'snapAndMint' | 'mint', args: readonly unknown[], label: string) => {
@@ -53,6 +56,20 @@ export default function App() {
   const snapMint = () => send('snapAndMint', [], 'Snapping today')
   const mint = (n: number) => send('mint', [BigInt(n)], `Minting #${n}`)
   const snapped = Boolean(state && state.todayNumber > 0)
+  const mintToday = () => (snapped && state ? mint(state.todayNumber) : snapMint())
+
+  const rename = async (tokenId: number, name: string) => {
+    if (!DEPLOYMENT?.agents) return false
+    const ok = await tx.send({
+      address: DEPLOYMENT.agents,
+      abi: moodAgentsAbi,
+      functionName: 'setName',
+      args: [BigInt(tokenId), name],
+      label: 'Naming your agent',
+    })
+    if (ok) await agent.reloadNames()
+    return ok
+  }
 
   return (
     <div className="page" style={{ '--accent': accent } as React.CSSProperties}>
@@ -66,6 +83,15 @@ export default function App() {
           <>
             <Hero state={state} now={now} busy={tx.busy} onSnapMint={snapMint} onMint={mint} />
             <Movers state={state} />
+            <Agent
+              connected={Boolean(wallet.account)}
+              agent={agent}
+              busy={tx.busy}
+              todayLabel={snapped ? `Mint today’s #${state.todayNumber}` : 'Snap today and mint'}
+              onConnect={openWalletMenu}
+              onMintToday={mintToday}
+              onRename={rename}
+            />
           </>
         ) : (
           <div className="loading kicker">{error ?? 'Reading the market…'}</div>
@@ -93,7 +119,7 @@ export default function App() {
                 <button
                   className="pill pill-lime pill-lg"
                   disabled={Boolean(tx.busy)}
-                  onClick={() => (snapped && state ? mint(state.todayNumber) : snapMint())}
+                  onClick={mintToday}
                 >
                   {tx.busy ? `${tx.busy}…` : snapped ? `Mint today’s #${state.todayNumber}` : 'Snap today and mint'}{' '}
                   <span aria-hidden="true">→</span>
