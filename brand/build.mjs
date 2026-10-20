@@ -10,7 +10,7 @@ const here = dirname(fileURLToPath(import.meta.url))
 const OUT = { svg: resolve(here, 'svg'), png: resolve(here, 'png'), posts: resolve(here, 'posts') }
 Object.values(OUT).forEach((d) => mkdirSync(d, { recursive: true }))
 
-const SITE = 'mood-ring-flax.vercel.app'
+const SITE = 'moodring.top'
 
 // Same tokens as web/src/styles/app.css
 const C = {

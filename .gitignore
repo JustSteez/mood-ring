@@ -11,3 +11,6 @@ web/.vercel
 web/src/config/deployments/local.json
 *.log
 *.zip
+
+# unzipped copies of the brand kit
+mood-ring-brand-kit/
