@@ -1,3 +1,4 @@
+import { Logo } from './components/Logo'
 import { useCallback, useState } from 'react'
 import { Archive } from './components/Archive'
 import { Hero } from './components/Hero'
@@ -83,7 +84,7 @@ export default function App() {
         <div className="container">
           <div className="footer-row">
             <a href="#top" className="footer-brand">
-              <span className="ring-mark" aria-hidden="true" />
+              <Logo />
               Mood Ring
             </a>
             <span className="footer-tag">The market, painted once a day.</span>

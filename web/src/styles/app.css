@@ -62,12 +62,7 @@ img { max-width: 100%; display: block; }
 .nav-solid { border-bottom-color: var(--line); }
 .nav-inner { display: flex; align-items: center; justify-content: space-between; gap: 16px; height: 68px; }
 .nav-logo { display: inline-flex; align-items: center; gap: 10px; font-weight: 650; font-size: 17px; text-decoration: none; letter-spacing: -0.01em; }
-.ring-mark {
-  width: 20px; height: 20px; border-radius: 50%;
-  background: conic-gradient(#d4ff3a, #34d399, #5b2eff, #fb923c, #ef4444, #d4ff3a);
-  -webkit-mask: radial-gradient(circle, transparent 5px, #000 6px);
-  mask: radial-gradient(circle, transparent 5px, #000 6px);
-}
+.logo { flex: none; display: block; }
 .nav-links { display: flex; gap: 28px; font-size: 15px; color: var(--muted); }
 .nav-links a { text-decoration: none; transition: color 150ms; }
 .nav-links a:hover { color: var(--text); }

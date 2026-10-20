@@ -1,3 +1,4 @@
+import { Logo } from './Logo'
 import { useScrollY } from '../hooks/useInView'
 import type { WalletState } from '../hooks/useWallet'
 import { WalletMenu } from './WalletMenu'
@@ -8,7 +9,7 @@ export function Nav({ wallet, showWallet }: { wallet: WalletState; showWallet: b
     <nav className={`nav ${scrolled ? 'nav-solid' : ''}`} aria-label="Main">
       <div className="container nav-inner">
         <a href="#top" className="nav-logo">
-          <span className="ring-mark" aria-hidden="true" />
+          <Logo />
           Mood Ring
         </a>
         <div className="nav-links">
