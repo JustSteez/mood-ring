@@ -1,0 +1,13 @@
+.env
+.env.*
+!.env.example
+contracts/out/
+contracts/cache/
+contracts/broadcast/
+contracts/art/
+node_modules/
+web/dist/
+web/.vercel
+web/src/config/deployments/local.json
+*.log
+*.zip
