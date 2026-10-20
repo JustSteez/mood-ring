@@ -35,15 +35,24 @@ export async function loadWallet(account: Address, tickers: string[]): Promise<W
     eth: Number(formatEther(balance)),
     txCount,
     gasGwei: Number(formatUnits(gasPrice, 9)),
-    amounts: balances.map((b) => (b.status === 'success' ? Number(formatUnits(b.result, 18)) : 0)),
+    // A failed read is not a zero balance: fail the whole answer rather than report wrong holdings.
+    amounts: balances.map((b, i) => {
+      if (b.status !== 'success') throw new Error(`balanceOf failed for ${tickers[i]}`)
+      return Number(formatUnits(b.result, 18))
+    }),
   }
 }
+
+// Per-wallet scan progress, so refreshes only scan blocks added since the last scan.
+const scans = new Map<string, { next: bigint; ids: Set<bigint> }>()
 
 /** Every token id ever sent to `account`, found from Transfer logs in RPC-sized chunks. */
 async function receivedTokenIds(account: Address): Promise<bigint[]> {
   const latest = await publicClient.getBlockNumber()
-  const ids = new Set<bigint>()
-  for (let from = MOOD_RING_DEPLOY_BLOCK; from <= latest; from += LOG_RANGE) {
+  const key = account.toLowerCase()
+  const prev = scans.get(key)
+  const ids = new Set(prev?.ids ?? [])
+  for (let from = prev?.next ?? MOOD_RING_DEPLOY_BLOCK; from <= latest; from += LOG_RANGE) {
     const to = from + LOG_RANGE - 1n < latest ? from + LOG_RANGE - 1n : latest
     const logs = await publicClient.getLogs({
       address: ring(),
@@ -54,6 +63,7 @@ async function receivedTokenIds(account: Address): Promise<bigint[]> {
     })
     for (const l of logs) if (l.args.tokenId !== undefined) ids.add(l.args.tokenId)
   }
+  scans.set(key, { next: latest + 1n, ids })
   return [...ids]
 }
 
@@ -72,19 +82,23 @@ export async function loadPieces(account: Address): Promise<OwnedPiece[]> {
   const owned = candidates
     .map((id, i) => ({ id, owner: lookups[i * 2], number: lookups[i * 2 + 1] }))
     .filter((x) => x.owner.status === 'success' && (x.owner.result as Address).toLowerCase() === account.toLowerCase())
-    .map((x) => ({ tokenId: Number(x.id), number: Number(x.number.result ?? 0n) }))
+    .filter((x) => x.number.status === 'success' && (x.number.result as bigint) > 0n)
+    .map((x) => ({ tokenId: Number(x.id), number: Number(x.number.result as bigint) }))
 
   const numbers = [...new Set(owned.map((o) => o.number))]
   const details = await snapshotDetails(numbers)
   return owned
-    .map((o) => ({ ...o, ...details.get(o.number)! }))
+    .flatMap((o) => {
+      const d = details.get(o.number)
+      return d ? [{ ...o, ...d }] : []
+    })
     .sort((a, b) => b.number - a.number || b.tokenId - a.tokenId)
 }
 
 async function snapshotDetails(numbers: number[]) {
   const address = ring()
   const res = await publicClient.multicall({
-    allowFailure: false,
+    allowFailure: true,
     contracts: numbers.flatMap((n) => [
       { address, abi: moodRingAbi, functionName: 'getSnapshot' as const, args: [BigInt(n)] as const },
       { address, abi: moodRingAbi, functionName: 'moves' as const, args: [BigInt(n)] as const },
@@ -93,9 +107,13 @@ async function snapshotDetails(numbers: number[]) {
   })
   const out = new Map<number, { day: number; avgBps: number; mintedOfSnapshot: number }>()
   numbers.forEach((n, i) => {
-    const snap = res[i * 3] as { day: number }
-    const moves = res[i * 3 + 1] as readonly [readonly bigint[], bigint]
-    out.set(n, { day: Number(snap.day), avgBps: Number(moves[1]), mintedOfSnapshot: Number(res[i * 3 + 2]) })
+    const [snap, moves, minted] = res.slice(i * 3, i * 3 + 3)
+    if (snap.status !== 'success' || moves.status !== 'success' || minted.status !== 'success') return
+    out.set(n, {
+      day: Number((snap.result as { day: number }).day),
+      avgBps: Number((moves.result as readonly [readonly bigint[], bigint])[1]),
+      mintedOfSnapshot: Number(minted.result),
+    })
   })
   return out
 }
@@ -105,7 +123,10 @@ export async function loadHistory(snapshotCount: number): Promise<DayMood[]> {
   const numbers = Array.from({ length: Math.min(HISTORY_DEPTH, snapshotCount) }, (_, i) => snapshotCount - i)
   if (numbers.length === 0) return []
   const details = await snapshotDetails(numbers)
-  return numbers.map((n) => ({ number: n, day: details.get(n)!.day, avgBps: details.get(n)!.avgBps }))
+  return numbers.flatMap((n) => {
+    const d = details.get(n)
+    return d ? [{ number: n, day: d.day, avgBps: d.avgBps }] : []
+  })
 }
 
 /** Agent names for the given pieces ("" where unnamed). Empty map until the registry is deployed. */

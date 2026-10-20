@@ -62,7 +62,8 @@ export function Agent({ connected, agent, busy, todayLabel, onConnect, onMintTod
   const [art, setArt] = useState<string | null>(null)
 
   useEffect(() => {
-    if (!piece) return setArt(null)
+    setArt(null)
+    if (!piece) return
     let live = true
     svgOf(piece.number)
       .then((s) => live && setArt(s))

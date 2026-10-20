@@ -67,7 +67,7 @@ export default function App() {
       args: [BigInt(tokenId), name],
       label: 'Naming your agent',
     })
-    if (ok) await agent.reloadNames()
+    if (ok) agent.nameSaved(tokenId, name)
     return ok
   }
 

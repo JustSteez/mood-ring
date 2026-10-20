@@ -139,6 +139,7 @@ describe('router', () => {
     ['show my pieces', 'collection'],
     ['check my wallet activity', 'wallet'],
     ['hello', 'help'],
+    ['hi, how is the market?', 'market'],
   ])('%s → %s', (q, skill) => {
     expect(route(q, TICKERS).skill).toBe(skill)
   })
